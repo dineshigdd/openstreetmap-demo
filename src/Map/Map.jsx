@@ -4,10 +4,10 @@ import "leaflet/dist/leaflet.css";
 import icon from "../Images/icon.png";
 import L from "leaflet";
 
-export default function Map({ coords, info }) {
-  console.log(info);
+export default function Map({ coords, display_name }) {
+  
   const { latitude, longitude } = coords;
-  const { display_name } = info;
+  
   console.log(latitude);
   console.log(longitude);
   // console.log(longitude );
@@ -30,7 +30,7 @@ export default function Map({ coords, info }) {
     <MapContainer
       classsName="map"
       center={[latitude, longitude]}
-      zoom={10}
+      zoom={5}
       scrollWheelZoom={true}
     >
       <TileLayer

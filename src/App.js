@@ -10,32 +10,57 @@ export default function App() {
 
   const [address, setAddress] = useState({});
 
+  function error() {
+    alert('Sorry, no position available.');
+  }
+  const options = {
+    enableHighAccuracy: true,
+    maximumAge: 30000,
+    timeout: 27000
+  };
+
+  function getCurrentCityName( position ){
+    setCorrds({
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude
+    }); 
+
+    // let url = `https://nominatim.openstreetmap.org/reverse?
+    // &lat=${coords.latitude}
+    // &lon=${coords.longitude}`
+   let url="https://nominatim.openstreetmap.org/reverse?format=jsonv2"+
+   "&lat="+coords.latitude+"&lon="+coords.longitude;
+
+    fetch(url, {
+      method: "GET",   
+      mode: 'cors', 
+      headers: {
+        "Access-Control-Allow-Origin": "https://o2cj2q.csb.app"
+      }
+    })
+      .then((response) => response.json())
+      .then((data) => setName( data.display_name));
+  }
+
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
+    navigator.geolocation.getCurrentPosition(
+      // (position) => {
       // console.log("Lon:" + position.coords.longtitude);
-      setCorrds({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude
-      });     
+      // setCorrds({
+      //   latitude: position.coords.latitude,
+      //   longitude: position.coords.longitude
+      // });     
       
      
-    });
-  }, [ coords]);
+    // },
+    getCurrentCityName,
+    error,
+    options
 
-  // function getCurrentCityName() {
-  //   let url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2
-  //   &lat=${coords.latitude}&lon=${coords.longitude}`;
+    );
+  }, []);
 
-  //   fetch(url, {
-  //     method: "GET",
-  //     mode: "cors",
-  //     headers: {
-  //       "Access-Control-Allow-Origin": "https://o2cj2q.csb.app"
-  //     }
-  //   })
-  //     .then((response) => response.json())
-  //     .then((data) => console.log( data));
-  // }
+  
   //separete the entred string
   function update(field) {
     return (e) => {
@@ -45,6 +70,7 @@ export default function App() {
   }
 
   function submitHandler(e) {
+    
     e.preventDefault();
     console.log(address);
 
@@ -62,7 +88,12 @@ export default function App() {
         "Access-Control-Allow-Origin": "https://o2cj2q.csb.app"
       }
     })
-      .then((response) => response.json())
+      .then((response ) => {
+        if( response.ok){
+          return response.json();
+        }
+        throw new Error('Something went wrong');
+      })
       .then(
         (data) => {
           setName(data[0].display_name);
@@ -83,7 +114,9 @@ export default function App() {
         //   dispaly_name: data[0].dispaly_name,
         //   icon: data[0].icon
         // })
-      );
+      ).catch((error) => {
+        alert("Error in your input; unable to find the position");
+      });;
   }
 
   return (
@@ -138,7 +171,7 @@ export default function App() {
           <button onClick={(e) => submitHandler(e)}>Search</button>
         </form>
       </section>
-      <Map coords={coords} info={display_name} />
+      <Map coords={coords} display_name={display_name} />
     </div>
   );
 }
